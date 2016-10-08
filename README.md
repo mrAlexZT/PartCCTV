@@ -10,7 +10,7 @@ PartCCTV, Yet Another CCTV App
   
 ### To Do List (1.0 Milestone)
 - [x] API
-- [x] WEB-GUI
+- [ ] WEB-GUI (Create/Update actions)
 - [x] Systemd service
   
 ### To Do List (Global)
