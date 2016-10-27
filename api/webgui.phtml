@@ -84,26 +84,26 @@ webgui.phtml
         <h4 class="modal-title" id="cam_new">Новая камера</h4>
       </div>
       <div class="modal-body">
-		<form action="" method="post">
+          <form id="new-cam" action="" method="post">
 		<fieldset>
         
             <div class="control-group">
               <label class="control-label" for="name">Название</label>
               <div class="controls">
-                <input type="text" id="name" name="name" required class="form-control input-lg">
+                  <input type="text" id="title" name="title" required class="form-control input-lg">
               </div>
             </div>
 		
             <div class="control-group">
-              <label class="control-label" for="source">Источник</label>
+                <label class="control-label" for="source">Источник (основной поток)</label>
               <div class="controls">
                 <input type="text" id="source" name="source" required class="form-control input-lg">
               </div>
             </div>
             
 		    <br>
-            
-			<input class="btn btn-primary" type="submit" value="Сохранить">
+
+            <input class="btn btn-primary" type="submit" value="Добавить">
             
 		</fieldset>
 		</form>

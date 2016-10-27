@@ -16,6 +16,26 @@ function htmlspecialchars(str) {
  }
 
 $(function() {
+//New Cam Post
+    $('.new-cam').submit(function () {
+        var postdata = $('.new-cam').serialize();
+        $.ajax({
+            url: '/api/1.0/camera/new',
+            type: "put",
+            data: postdata,
+            dataType: "json",
+            error: function (xhr) {
+                alert('Ошибка! ' + xhr.status + ' ' + xhr.statusText);
+            },
+            success: function (data) {
+                alert(data);
+                setTimeout(function () {
+                    location = "";
+                }, 1250);
+            }
+        });
+    });
+
 //Cam Settings Modal
 $(document).on("click", ".open-CamSettings", function () {
     var camId = $(this).data('id');
