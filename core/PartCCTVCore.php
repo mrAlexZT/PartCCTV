@@ -67,9 +67,11 @@ class PartCCTVCore
 
     public function __destruct()
     {
-        // PID Lock
-        fflush($this->PIDLock_file);        // очищаем вывод перед отменой блокировки
-        flock($this->PIDLock_file, LOCK_UN); // отпираем файл
+        if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
+            // PID Lock
+            fflush($this->PIDLock_file);        // очищаем вывод перед отменой блокировки
+            flock($this->PIDLock_file, LOCK_UN); // отпираем файл
+        }
     }
 
     /**

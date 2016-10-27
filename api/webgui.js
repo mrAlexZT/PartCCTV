@@ -17,7 +17,7 @@ function htmlspecialchars(str) {
 
 $(function() {
 //New Cam Post
-    $('.new-cam').submit(function () {
+    $('#new-cam').submit(function () {
         var postdata = $('.new-cam').serialize();
         $.ajax({
             url: '/api/1.0/camera/new',
