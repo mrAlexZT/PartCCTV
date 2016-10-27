@@ -69,7 +69,7 @@ $app->get('/api/1.0/platform/settings', function () use ($app) {
 $app->post('/api/1.0/platform/settings', function (Request $request) use ($app) {
 
     if (count($request->request) === 0) {
-        $app->abort(400, '400 Bad Request');
+        $app->abort(400, 'Bad Request');
     }
 
     $STH = $app['dbh']->prepare('UPDATE core_settings SET value = :value WHERE param = :param');
@@ -129,10 +129,8 @@ $app->get('/api/1.0/camera/list', function () use ($app) {
 
     // Массив $ar2 PIDов из ядра (через ZMQ)
     $app['zmq']->send(json_encode(array('action' => 'core_workerpids')));
+    $ar2 = array_flip(json_decode($app['zmq']->recv(), true));
 
-    $ar2 = json_decode($app['zmq']->recv(), true);
-
-    $ar2 = array_flip($ar2);
     foreach ($ar1 as &$i) {
         // Если во втором массиве есть элемент с соответствующим id
         if (isset($ar2[$i['id']])) {
@@ -178,26 +176,29 @@ $app->get('/api/1.0/camera/log', function () use ($app) {
 
 $app->put('/api/1.0/camera/new', function (Request $request) use ($app) {
 
-    if (count($request->request) === 0) {
-        $app->abort(400, '400 Bad Request');
+	$put_str = file_get_contents('php://input');
+	parse_str($put_str, $_PUT);
+
+    if (count($_PUT) === 0) {
+        $app->abort(400, 'Bad Request');
     }
 
     // Проверка: запрос должен быть полным
-    if (!isset($request->request['title'], $request->request['source'])) {
+    if (!isset($_PUT['title'], $_PUT['source'])) {
         return new Response('Incomplete request!', 500, ['Content-Type' => 'application/json']);
     }
 
     $STH = $app['dbh']->prepare('INSERT INTO cam_list (id, title, enabled, source) VALUES (NULL, :title, 0, :source)');
-    $STH->execute(array('title' => $request->request['title'], 'source' => $request->request['source']));
+    $STH->execute(array('title' => $_PUT['title'], 'source' => $_PUT['source']));
 
-    return new Response('OK', 200, ['Content-Type' => 'application/json']);
+    return new Response('{}', 200, ['Content-Type' => 'application/json']);
 
 });
 
 $app->post('/api/1.0/camera/{camera}/', function (Request $request, $camera) use ($app) {
 
     if (count($request->request) === 0) {
-        $app->abort(400, '400 Bad Request');
+        $app->abort(400, 'Bad Request');
     }
 
     // Проверка: камера должна существовать
