@@ -148,7 +148,7 @@ class PartCCTVCore
                         $Request_Error = 'JSON Parser: Некорректный управляющий символ';
                         break;
                     case 'Request_Error_SYNTAX':
-                        $Request_Error = 'JSON Parser: Синтаксическая ошибка, не корректный JSON';
+                        $Request_Error = 'JSON Parser: Синтаксическая ошибка, некорректный JSON';
                         break;
                     case 'Request_Error_UTF8':
                         $Request_Error = 'JSON Parser: Некорректные символы UTF-8, возможно неверная кодировка';
@@ -193,7 +193,6 @@ class PartCCTVCore
 
                         case 'core_workerpids':
                             $Response = json_encode($this->WorkerPIDs);
-                            unset ($status);
                             break;
 
                         case 'core_restart_is_required':
@@ -249,9 +248,6 @@ class PartCCTVCore
 
             }
 
-            //TODO: КОСТЫЛЬ
-            sleep(1);
-
             // Завершаем ядро при необходимости
             if ($this->IF_Shutdown) {
 
@@ -264,14 +260,17 @@ class PartCCTVCore
 
                 if (count($this->WorkerPIDs) === 0) {
                     $this->Logger->INFO('Завершение работы ядра платформы');
-                    break;
+                    exit(0);
                 } elseif (time() - $shutdown_time > 60) {
                     // Хьюстон, у нас проблема, прошло больше минуты, а вырубились не все дочерние процессы
                     $this->Logger->EMERGENCY('Аварийное завершение работы платформы: не все воркеры завершены!');
                     exec('killall -s9 php');
-                    break;
+                    exit(1);
                 }
             }
+			
+			usleep(100000);
+			
         }
     }
 
@@ -335,7 +334,7 @@ class PartCCTVCore
                 $ZMQRequester->send(json_encode(array('action' => 'worker_if_shutdown')));
                 if ($ZMQRequester->recv()) {
                     $this->CamLogger->debug('Завершается воркер id' . $id . ' с PID ' . getmypid());
-                    break;
+                    exit(0);
                 }
 
                 sleep($time_to_sleep);
