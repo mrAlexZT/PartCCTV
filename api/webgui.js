@@ -41,7 +41,8 @@ $('#platform-settings-form').submit(function (e) {
 $('#cam-settings-form').submit(function (e) {
 	e.preventDefault();
 	var camId = cam_settings_id.value;
-	var postdata = $('#cam-settings-form').serialize();
+	var rawData = $('#cam-settings-form');
+	var postdata = rawData.serialize();
 	$.ajax({
 		url: '/api/1.0/camera/'+camId+'/',
 		type: "post",
