@@ -26,7 +26,7 @@ $(function() {
             data: postdata,
             dataType: "json",
             error: function (xhr) {
-                alert('Ошибка! ' + xhr.status + ' ' + xhr.statusText);
+                alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText);
             },
             success: function (data) {
                 alert('OK');
@@ -37,6 +37,25 @@ $(function() {
         });
     });
 
+//Cam Remove Button	
+$('#cam_remove').click(function(){
+	var camId = cam_settings_id.value;
+	$.ajax({
+		url: '/api/1.0/camera/'+camId+'/',
+		type: "delete",
+		dataType: "text",
+		error: function(xhr) {
+			alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText); 
+		},
+		success: function(data) {
+			alert(data); 
+			setTimeout(function () {
+				location.reload();
+			}, 100);			
+		}
+	});		
+});	
+	
 //Cam Settings Modal
 $(document).on("click", ".open-CamSettings", function () {
     var camId = $(this).data('id');
@@ -45,7 +64,7 @@ $(document).on("click", ".open-CamSettings", function () {
 		type: "get",
 		dataType: "json",
 		error: function(xhr) {
-			console.log('Ошибка! '+xhr.status+' '+xhr.statusText); 
+			console.log('Ошибка! '+xhr.status+' '+xhr.responseText); 
 		},
 		success: function(data) {
 			$('#cam_settings_id').val(data[0].id);
@@ -64,7 +83,7 @@ $.ajax({
     type: "get",
     dataType: "json",
     error: function(xhr) {
-        console.log('Ошибка! '+xhr.status+' '+xhr.statusText); 
+        console.log('Ошибка! '+xhr.status+' '+xhr.responseText); 
     },	
     success: function(data) {
         $('#core_status_ajax').html('<div class="progress-bar progress-bar-success" role="progressbar" style="width: '+ (data.total_space - data.free_space)/data.total_space*100 +'%;">На '+data.path+' свободно '+data.free_space+'Гб из '+data.total_space+'Гб</div>');
@@ -79,7 +98,7 @@ $.ajax({
     type: "get",
     dataType: "json",
     error: function(xhr) {
-        console.log('Ошибка! '+xhr.status+' '+xhr.statusText); 
+        console.log('Ошибка! '+xhr.status+' '+xhr.responseText); 
     },	
     success: function(data) {
         drawCamList(data);
@@ -135,7 +154,7 @@ $.ajax({
     type: "get",
     dataType: "json",
     error: function(xhr) {
-        console.log('Ошибка! '+xhr.status+' '+xhr.statusText); 
+        console.log('Ошибка! '+xhr.status+' '+xhr.responseText); 
     },	
     success: function(data) {
         drawSettingsModal(data);
@@ -179,7 +198,7 @@ $.ajax({
     url: "/api/1.0/platform/log", 
     dataType:"text", 
     error: function(xhr) {
-        console.log('Ошибка! '+xhr.status+' '+xhr.statusText); 
+        console.log('Ошибка! '+xhr.status+' '+xhr.responseText); 
     },
     success: function(a) {
         $('#core_log_ajax').html(a);
@@ -193,7 +212,7 @@ $.ajax({
     url: "/api/1.0/camera/log", 
     dataType:"text", 
     error: function(xhr) {
-        console.log('Ошибка! '+xhr.status+' '+xhr.statusText); 
+        console.log('Ошибка! '+xhr.status+' '+xhr.responseText); 
     },
     success: function(a) {
         $('#cam_log_ajax').html(a);
