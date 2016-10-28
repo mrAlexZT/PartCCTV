@@ -16,26 +16,69 @@ function htmlspecialchars(str) {
  }
 
 $(function() {
-//New Cam Post
-    $('#new-cam').submit(function (e) {
-		e.preventDefault();
-        var postdata = $('#new-cam').serialize();
-        $.ajax({
-            url: '/api/1.0/camera/new',
-            type: "put",
-            data: postdata,
-            dataType: "json",
-            error: function (xhr) {
-                alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText);
-            },
-            success: function (data) {
-                alert('OK');
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
-            }
-        });
-    });
+//Platform Settings Form
+$('#platform-settings-form').submit(function (e) {
+	e.preventDefault();
+	var postdata = $('#platform-settings-form').serialize();
+	$.ajax({
+		url: '/api/1.0/platform/settings',
+		type: "post",
+		data: postdata,
+		dataType: "text",
+		error: function (xhr) {
+			alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText);
+		},
+		success: function (data) {
+			alert(data); 
+			setTimeout(function () {
+				location.reload();
+			}, 100);
+		}
+	});
+});
+
+//Cam Settings Form	
+$('#cam-settings-form').submit(function (e) {
+	e.preventDefault();
+	var camId = cam_settings_id.value;
+	var postdata = $('#cam-settings-form').serialize();
+	$.ajax({
+		url: '/api/1.0/camera/'+camId+'/',
+		type: "post",
+		data: postdata,
+		dataType: "text",
+		error: function (xhr) {
+			alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText);
+		},
+		success: function (data) {
+			alert(data); 
+			setTimeout(function () {
+				location.reload();
+			}, 100);
+		}
+	});
+});
+	
+//New Cam Form
+$('#new-cam').submit(function (e) {
+	e.preventDefault();
+	var postdata = $('#new-cam').serialize();
+	$.ajax({
+		url: '/api/1.0/camera/new',
+		type: "put",
+		data: postdata,
+		dataType: "json",
+		error: function (xhr) {
+			alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText);
+		},
+		success: function (data) {
+			alert('OK');
+			setTimeout(function () {
+				location.reload();
+			}, 100);
+		}
+	});
+});
 
 //Cam Remove Button	
 $('#cam_remove').click(function(){
@@ -163,8 +206,7 @@ $.ajax({
 
 function drawSettingsModal(data) {
     //часть формы до полей, которые генерируем автоматически
-    var html = '<form action="" method="post">' +
-            '<fieldset>';
+    var html = '<fieldset>';
 
     //генерируем html-код полей с именами и значениями из поступивших данных 
     for (var i = 0; i < data.length; i++) {
@@ -175,8 +217,7 @@ function drawSettingsModal(data) {
     html += '<input type="hidden" name="action" value="platform_settings">' +
         '<br>' +
         '<input class="btn btn-primary" type="submit" value="Сохранить">' +
-        '</fieldset>' +
-    '</form>';
+        '</fieldset>';
     
     $('#core_settings_ajax').html(html);
 }

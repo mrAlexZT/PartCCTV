@@ -56,11 +56,11 @@ webgui.phtml
 			<div class="col-md-12">
 				<a class="btn-menu btn btn-lg btn-success" data-toggle="modal" data-target="#cam_new">Добавить новую камеру</a>
 				<a class="btn-menu btn btn-lg btn-info"    data-toggle="modal" data-target="#core_settings">Настройки платформы</a>
-				<a class="btn-menu btn btn-lg btn-info"    data-toggle="modal" data-target="#core_users">Пользователи</a>					
+				<!-- <a class="btn-menu btn btn-lg btn-info"    data-toggle="modal" data-target="#core_users">Пользователи</a> -->					
 				<a class="btn-menu btn btn-lg btn-default" data-toggle="modal" data-target="#core_log">Лог платформы</a>
 				<a class="btn-menu btn btn-lg btn-default" data-toggle="modal" data-target="#cam_log">Лог камер</a>					
-				<a class="btn-menu btn btn-lg btn-warning" >Частичная перезагрузка платформы</a>	                
-				<a class="btn-menu btn btn-lg btn-danger"  >Перезагрузка платформы</a>			
+				<!-- <a class="btn-menu btn btn-lg btn-warning" >Частичная перезагрузка платформы</a> -->	                
+				<!-- <a class="btn-menu btn btn-lg btn-danger"  >Перезагрузка платформы</a> -->			
 			</div>
 		</div>
         
@@ -124,19 +124,19 @@ webgui.phtml
         <h4 class="modal-title" id="cam_settings">Настройки камеры</h4>
       </div>
       <div class="modal-body" id="cam_settings_ajax">
-		<form action="" method="post">
+		<form id="cam-settings-form" method="post">
 		<fieldset>
             <div class="control-group">
               <label class="control-label" for="id">ID</label>
               <div class="controls">
-                <input type="text" id="cam_settings_id" name="id" required class="form-control input-lg">
+                <input type="text" id="cam_settings_id" name="id" required readonly class="form-control input-lg">
               </div>
             </div>
          
             <div class="control-group">
               <label class="control-label" for="name">Название</label>
               <div class="controls">
-                <input type="text" id="cam_settings_name" name="name" required class="form-control input-lg">
+                <input type="text" id="cam_settings_name" name="title" required class="form-control input-lg">
               </div>
             </div>
 		
@@ -173,7 +173,11 @@ webgui.phtml
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="core_settings">Настройки платформы</h4>
       </div>
-      <div class="modal-body" id="core_settings_ajax">
+      <div class="modal-body">
+		<form id="platform-settings-form" method="post">
+		<div id="core_settings_ajax">
+		</div>
+		</form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Отмена</button>

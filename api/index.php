@@ -209,12 +209,11 @@ $app->post('/api/1.0/camera/{camera}/', function (Request $request, $camera) use
         return new Response('Unknown Camera ID!', 500, ['Content-Type' => 'application/json']);
     }
 
-    $STH = $app['dbh']->prepare('UPDATE cam_list` SET :key = :value WHERE id = :id');
-
     foreach ($request->request as $key => $value) {
-        $STH->execute(array('key' => $key, 'value' => $value, 'id' => $camera));
+	    $STH = $app['dbh']->prepare('UPDATE cam_list SET '.$key.' = :value WHERE id = :id');	
+        $STH->execute(array('value' => $value, 'id' => $camera));
     }
-
+	
     // RestartIsRequired flag
     try {
         $app['zmq']->send(json_encode(array('action' => 'core_restart_is_required')));
