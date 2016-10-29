@@ -7,12 +7,7 @@ PartCCTV, Yet Another CCTV App
   - Lightweight
   - Open Source
   - Made with love :)  
-  
-### To Do List (1.0 Milestone)
-- [x] API
-- [ ] WEB-GUI (Create/Update actions)
-- [x] Systemd service
-  
+    
 ### To Do List (Global)
 - [ ] Authentication, Authorization, Account Management & Audit Logging
 - [ ] Better FFmpeg handler
