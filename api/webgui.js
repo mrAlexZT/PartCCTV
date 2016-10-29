@@ -40,11 +40,35 @@ $('#platform-settings-form').submit(function (e) {
 //Cam Settings Form	
 $('#cam-settings-form').submit(function (e) {
 	e.preventDefault();
-	var camId = cam_settings_id.value;
-	var rawData = $('#cam-settings-form');
-	var postdata = rawData.serialize();
+	
+	if($('#cam_settings_enabled').prop('checked')==true) {
+		var cameraEnabledValue = 1;
+	} else if($('#cam_settings_enabled').prop('checked')==false) {
+		var cameraEnabledValue = 0;
+	} 
+	
+	var postdata = $('#cam-settings-form').serializeArray();
+
+	// Find and replace `content` if there
+	for (index = 0; index < postdata.length; ++index) {
+		if (postdata[index].name == "enabled") {
+			postdata[index].value = cameraEnabledValue;
+			break;
+		}
+	}
+
+	// Add it if it wasn't there
+	if (index >= postdata.length) {
+		postdata.push({
+			name: "enabled",
+			value: cameraEnabledValue
+		});
+	}
+	
+	postdata = jQuery.param(postdata);
+	
 	$.ajax({
-		url: '/api/1.0/camera/'+camId+'/',
+		url: '/api/1.0/camera/'+cam_settings_id.value+'/',
 		type: "post",
 		data: postdata,
 		dataType: "text",
