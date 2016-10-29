@@ -16,6 +16,24 @@ function htmlspecialchars(str) {
  }
 
 $(function() {
+//Platform Restart
+$('#platform-restart').click(function(){
+	$.ajax({
+		url: '/api/1.0/platform/restart',
+		type: "post",
+		dataType: "text",
+		error: function (xhr) {
+			alert('Ошибка! ' + xhr.status + ' ' + xhr.responseText);
+		},
+		success: function (data) {
+			alert(data); 
+			setTimeout(function () {
+				location.reload();
+			}, 1000);
+		}
+	});	
+});	
+	
 //Platform Settings Form
 $('#platform-settings-form').submit(function (e) {
 	e.preventDefault();
@@ -157,6 +175,9 @@ $.ajax({
         $('#core_status_ajax').html('<div class="progress-bar progress-bar-success" role="progressbar" style="width: '+ (data.total_space - data.free_space)/data.total_space*100 +'%;">На '+data.path+' свободно '+data.free_space+'Гб из '+data.total_space+'Гб</div>');
         $('#core_pid').html('Core PID: '+ data.core_pid);
 		$('#core_version').html('Version: '+ data.core_version);
+		if(data.restart_required==1) {
+			$("#platform_restart").show();
+		}
     }
 });
 

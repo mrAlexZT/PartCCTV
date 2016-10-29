@@ -10,10 +10,7 @@ require_once __DIR__ . '/../version.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 class PartCCTVException extends Exception
-{
-}
-
-;
+{}
 
 try {
     if (version_compare(PHP_VERSION, '7.0.0') < 0) {

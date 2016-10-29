@@ -201,7 +201,7 @@ class PartCCTVCore
                             break;
 
                         case 'core_stop':
-                            if ($this->PartCCTV_ini['run_as_systemd_service']) {
+                            if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
                                 $Response = 'Action is disabled!';
                             } else {
                                 exec('kill ' . $this->CorePID);
@@ -210,11 +210,12 @@ class PartCCTVCore
                             break;
 
                         case 'core_restart':
-                            if ($this->PartCCTV_ini['run_as_systemd_service']) {
-                                exec('service partcctv restart');
-                                $Response = 'OK';
+                            if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
+                                /* exec('service partcctv restart'); */
+                                /* $Response = 'Restart OK'; */
+								$Response = 'T.B.D.';
                             } else {
-                                $Response = 'Not a service!';
+                                $Response = 'Not a Systemd Service!';
                             }
                             break;
 
