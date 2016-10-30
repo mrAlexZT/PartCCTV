@@ -1,6 +1,8 @@
 PartCCTV, Yet Another CCTV App
 ==================
 
+By [@mironoff111](https://github.com/mironoff111)
+
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/6308734b-20af-4963-b73e-a1c860cfb595/mini.png)](https://insight.sensiolabs.com/projects/6308734b-20af-4963-b73e-a1c860cfb595)
 
 ## Features
