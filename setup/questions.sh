@@ -18,25 +18,25 @@ if [ -z "$NONINTERACTIVE" ]; then
 		\n\nNOTE: You should only install this on a brand new Ubuntu installation 100% dedicated to PartCCTV. It will, for example, remove apache2."
 fi
 
-if [ -z "$STORAGE_ROOT" ]; then
-$DEFAULT_STORAGE"/media/cctv"
-	input_box "Hostname" \
-	"PartCCTV needs some place, where it will store recordered media.
-	\n\nIt can be changed in the WEBGUI.
-	\n\nStore Path:" \
-		$DEFAULT_STORAGE \	
-		STORAGE_ROOT
+# if [ -z "$STORAGE_ROOT" ]; then
+# $DEFAULT_STORAGE"/media/cctv"
+	# input_box "Hostname" \
+	# "PartCCTV needs some place, where it will store recordered media.
+	# \n\nIt can be changed in the WEBGUI.
+	# \n\nStore Path:" \
+		# $DEFAULT_STORAGE \	
+		# STORAGE_ROOT
 
-	if [ -z "$STORAGE_ROOT" ]; then
-		# user hit ESC/cancel
-		exit
-	fi
+	# if [ -z "$STORAGE_ROOT" ]; then
+		# # user hit ESC/cancel
+		# exit
+	# fi
 
-	# Show the configuration, since the user may have not entered it manually.
-	echo
-	echo "Store Path: $STORAGE_ROOT"
-	if [ -f /usr/bin/git ] && [ -d .git ]; then
-		echo "PartCCTV Version: " $(git describe)
-	fi
-	echo
-fi
+	# # Show the configuration, since the user may have not entered it manually.
+	# echo
+	# echo "Store Path: $STORAGE_ROOT"
+	# if [ -f /usr/bin/git ] && [ -d .git ]; then
+echo "PartCCTV Version: " $(git describe)
+	# fi
+	# echo
+# fi
