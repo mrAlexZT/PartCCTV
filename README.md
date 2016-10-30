@@ -24,26 +24,25 @@ By [@mironoff111](https://github.com/mironoff111)
 - [ ] Neural Network integraton 
 
 ## Installation
-  - Clone it: `git clone https://github.com/mironoff111/PartCCTV.git`
-  - Install all dependencies: `php composer.phar install`
-  - Configure `nginx` (using `install/nginx.conf` as example) or configure `Apache` (no example config: TBD)
-  - Restore DB from .sql file (using `install/mysql.sql`, `install/postgre.sql` or converting it to another DB)
-  - Configure and rename `PartCCTV.ini.example` to `PartCCTV.ini` file
-  - Run core: `php core/starter.php` (TBD: systemd service)
-  - Set-up core with `web_gui` or `API`
-  - That's all :)
-  
+
+Start with a completely fresh Ubuntu 16.04 LTS 64-bit machine. On the machine...
+
+Clone the repo:
+
+	$ git clone https://github.com/mironoff111/PartCCTV
+	$ cd PartCCTV
+
+Checkout the tag corresponding to the most recent release:
+
+	$ git checkout v1.0
+
+Begin the installation.
+
+	$ sudo setup/start.sh
 
 ## About
 
 ![Block-scheme](https://raw.githubusercontent.com/mironoff111/PartCCTV/gh-pages/1111.png)
-
-### Requirements
-  - `Linux`/`FreeBSD`/`MacOSX` ( except `Windows` because of `pcntl_fork()` )
-  - `PHP 7.0` `CLI` and `FPM` with `PDO` and `ZeroMQ binding` ( http://zeromq.org/bindings:php )
-  - `ZeroMQ` ( http://zeromq.org/area:download )
-  - `PDO` compatible DB (MySQL, Postgresql, SQlite, etc.)
-  - `FFmpeg`
 
 ### Contributing
   - Fork it: https://github.com/mironoff111/PartCCTV/fork
