@@ -20,21 +20,22 @@ fi
 
 if [ -z "$STORAGE_ROOT" ]; then
 
-input_box "Hostname" \
-"PartCCTV needs some place, where it will store recordered media.
-\n\nIt can be changed in the WEBGUI.
-\n\Store Path:" \
-	STORAGE_ROOT
+	input_box "Hostname" \
+	"PartCCTV needs some place, where it will store recordered media.
+	\n\nIt can be changed in the WEBGUI.
+	\n\Store Path:" \
+		STORAGE_ROOT
 
-if [ -z "$STORAGE_ROOT" ]; then
-	# user hit ESC/cancel
-	exit
-fi
+	if [ -z "$STORAGE_ROOT" ]; then
+		# user hit ESC/cancel
+		exit
+	fi
 
-# Show the configuration, since the user may have not entered it manually.
-echo
-echo "Store Path: $STORAGE_ROOT"
-if [ -f /usr/bin/git ] && [ -d .git ]; then
-	echo "PartCCTV Version: " $(git describe)
+	# Show the configuration, since the user may have not entered it manually.
+	echo
+	echo "Store Path: $STORAGE_ROOT"
+	if [ -f /usr/bin/git ] && [ -d .git ]; then
+		echo "PartCCTV Version: " $(git describe)
+	fi
+	echo
 fi
-echo
