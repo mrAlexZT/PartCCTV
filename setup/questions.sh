@@ -19,12 +19,12 @@ if [ -z "$NONINTERACTIVE" ]; then
 fi
 
 if [ -z "$STORAGE_ROOT" ]; then
-
+$DEFAULT_STORAGE"/media/cctv"
 	input_box "Hostname" \
 	"PartCCTV needs some place, where it will store recordered media.
 	\n\nIt can be changed in the WEBGUI.
-	\n\Store Path:" \
-		"/media/cctv" \	
+	\n\nStore Path:" \
+		$DEFAULT_STORAGE \	
 		STORAGE_ROOT
 
 	if [ -z "$STORAGE_ROOT" ]; then
