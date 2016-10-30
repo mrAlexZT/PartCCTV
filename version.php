@@ -1,2 +1,2 @@
 <?php
-  define('PartCCTV_Version', 'omega-1477861887');
+  define('PartCCTV_Version', 'omega-1477870332');

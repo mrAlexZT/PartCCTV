@@ -28,13 +28,28 @@ source setup/ffmpeg.sh
 
 # ...and then have it write the nginx configuration files and start those
 # services.
-source setup/web_update.sh
+
+cwd=$(pwd)
+# PartCCTV Service
+sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/partcctv.service
+cp setup/partcctv.service /etc/systemd/system/partcctv.service
+systemctl enable partcctv
+systemctl start partcctv
+
+# Nginx conf
+sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/nginx.conf
+rm -f /etc/nginx/conf.d/default.conf
+cp setup/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Start services.
+restart_service nginx
+restart_service php7.0-fpm
 
 # Done.
 echo
 echo "-----------------------------------------------"
 echo
-echo Your Mail-in-a-Box is running.
+echo Your PartCCTV instance is running.
 echo
 echo Please log in to the control panel at:
 echo

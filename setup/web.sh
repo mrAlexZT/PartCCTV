@@ -26,10 +26,6 @@ hide_output pecl install zmq-beta
 echo "Installing PostgreSQL..."
 apt_install postgresql
 
-# Start services.
-restart_service nginx
-restart_service php7.0-fpm
-
 # Open ports.
 ufw_allow http
 ufw_allow https

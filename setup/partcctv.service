@@ -3,7 +3,6 @@ Description=PartCCTV Core Daemon
 After=syslog.target
 After=network.target
 After=nginx.service
-After=mysql.service
 
 [Service]
 PIDFile=/var/run/partcctv.pid
