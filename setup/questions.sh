@@ -6,7 +6,7 @@ if [ -z "$NONINTERACTIVE" ]; then
 	# use a shell flag instead. Really suppress any output from installing dialog.
 	#
 	# Also install dependencies needed to validate the email address.
-	if [ ! -f /usr/bin/dialog ] then
+	if [ ! -f /usr/bin/dialog ]; then
 		echo Installing packages needed for setup...
 		apt-get -q -q update
 		apt_get_quiet install dialog || exit 1
