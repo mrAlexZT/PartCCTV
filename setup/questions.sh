@@ -24,6 +24,7 @@ if [ -z "$STORAGE_ROOT" ]; then
 	"PartCCTV needs some place, where it will store recordered media.
 	\n\nIt can be changed in the WEBGUI.
 	\n\Store Path:" \
+		"/media/cctv" \	
 		STORAGE_ROOT
 
 	if [ -z "$STORAGE_ROOT" ]; then
