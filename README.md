@@ -19,10 +19,6 @@ Clone the repo:
 	$ git clone https://github.com/mironoff111/PartCCTV
 	$ cd PartCCTV
 
-Checkout the tag corresponding to the most recent release:
-
-	$ git checkout v1.0
-
 Begin the installation.
 
 	$ sudo setup/start.sh
