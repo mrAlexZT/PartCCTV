@@ -10,19 +10,6 @@ By [@mironoff111](https://github.com/mironoff111)
   - Open Source
   - Made with love :)  
     
-### To Do List (Global)
-- [ ] Authentication, Authorization, Account Management & Audit Logging
-- [ ] Better FFmpeg handler
-- [ ] Better Exception Handler & More Checks
-- [ ] Live Stream Access from WEB-GUI (via second stream or full stream as fallback)
-- [ ] Custom Recorder Backend for every Camera
-- [ ] Easy Install Script
-- [ ] Logging API
-- [ ] Localization
-- [ ] Documentation
-- [ ] Native Linux & Windows Client
-- [ ] Neural Network integraton 
-
 ## Installation
 
 Start with a completely fresh Ubuntu 16.04 LTS 64-bit machine. On the machine...
