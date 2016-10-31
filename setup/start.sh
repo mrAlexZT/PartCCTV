@@ -35,7 +35,7 @@ cwd=$(pwd)
 echo Configuring nginx
 sed -i "s#/home/cctv/PartCCTV#$cwd#g" setup/nginx.conf
 rm -f /etc/nginx/conf.d/default.conf
-cp setup/nginx.conf /etc/nginx/conf.d/default.conf
+cp -f setup/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Composer
 echo Installing Composer dependencies...
@@ -57,7 +57,7 @@ restart_service postgresql
 # PartCCTV Service
 echo Setting-up PartCCTV service
 sed -i "s#/home/cctv/PartCCTV#$cwd#g" setup/partcctv.service
-cp setup/partcctv.service /etc/systemd/system/partcctv.service
+cp -f setup/partcctv.service /etc/systemd/system/partcctv.service
 systemctl enable partcctv
 systemctl start partcctv
 

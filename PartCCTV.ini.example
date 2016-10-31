@@ -14,10 +14,10 @@ password = cctv
 
 [monolog_stream]
 enabled = true
-log_level = 'INFO'
+log_level = 'DEBUG'
 
 [monolog_telegram]
-enabled = true
+enabled = false
 log_level = 'NOTICE'
 token = 
 user_id = 
