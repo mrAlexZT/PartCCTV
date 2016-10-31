@@ -10,22 +10,46 @@ By [@mironoff111](https://github.com/mironoff111)
   - Open Source
   - Made with love :)  
     
+### Requirements
+  - `Linux`/`FreeBSD`/`MacOSX` ( except `Windows` because of `pcntl_fork()` )
+  - `PHP 7.0` `CLI` and `FPM` with `PDO`  
+  - `ZeroMQ` and PHP `ZeroMQ binding` ( http://zeromq.org/bindings:php )
+  
+  for Ubuntu:
+  ```
+  sudo apt install php7.0-dev libzmq-dev pkg-config php-pear
+  sudo pecl install zmq-beta
+  echo "extension=zmq.so" >> /etc/php/7.0/mods-available/zmq.ini
+  ln -s /etc/php/7.0/mods-available/zmq.ini /etc/php/7.0/fpm/conf.d/20-zmq.ini
+  ln -s /etc/php/7.0/mods-available/zmq.ini /etc/php/7.0/cli/conf.d/20-zmq.ini
+  ``` 
+  
+  - `PDO` compatible DB (MySQL, Postgresql, SQlite, etc.)
+  - `FFmpeg` 
+  
+  for Ubuntu:
+  ```
+  sudo add-apt-repository -y ppa:djcj/hybrid
+  sudo apt install ffmpeg
+  ```
+    
 ## Installation
-
-Start with a completely fresh Ubuntu 16.04 LTS 64-bit machine. On the machine...
-
-Clone the repo:
-
-	$ git clone https://github.com/mironoff111/PartCCTV
-	$ cd PartCCTV
-
-Checkout the tag corresponding to the most recent release:
-
-	$ git checkout v1.0
-
-Begin the installation.
-
-	$ sudo setup/start.sh
+  - Clone it: `git clone https://github.com/mironoff111/PartCCTV`
+  
+  `cd PartCCTV`
+  - Install all dependencies: `php composer.phar install`
+  - Configure `nginx` (using `install/nginx.conf` as example) or configure `Apache` (no example config: TBD)
+  - Restore DB from .sql file (using `install/mysql.sql`, `install/postgre.sql` or converting it to another DB)
+  - Configure and rename `PartCCTV.ini.example` to `PartCCTV.ini` file
+  - Edit and move `install/partcctv.service` to `/etc/systemd/system/partcctv.service` (or run the platform manually)
+  
+  ```
+  systemctl enable partcctv
+  systemctl start partcctv
+  ```
+  - Set-up core with `web_gui` or `API`
+  - That's all :)
+  
 
 ## About
 
