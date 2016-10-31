@@ -47,6 +47,7 @@ cp PartCCTV.ini.example PartCCTV.ini
 sed -i "s#root#cctv#g" PartCCTV.ini
 sed -i "s#mysql#pgsql#g" PartCCTV.ini
 sed -i "s#run_as_systemd_service = false#run_as_systemd_service = true#g" PartCCTV.ini
+sed -i "s#;charset=UTF8##g" PartCCTV.ini
 
 # Start services.
 echo Restarting services...
