@@ -21,6 +21,7 @@ fi
 echo "Installing Nginx (web server) & PHP7.0 (FPM and CLI)..."
 hide_output add-apt-repository -y ppa:nginx/development
 apt_install nginx php7.0-fpm php7.0-cli php7.0-json php7.0-pgsql php7.0-opcache php7.0-dev libzmq-dev pkg-config php-pear
+echo "Installing ZMQ Binding..."
 hide_output pecl install zmq-beta
 
 echo "Installing PostgreSQL..."
