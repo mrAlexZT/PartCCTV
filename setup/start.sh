@@ -62,12 +62,9 @@ systemctl enable partcctv
 systemctl start partcctv
 
 # Done.
-echo
-echo "-----------------------------------------------"
-echo
-echo Your PartCCTV instance is running.
-echo
-echo Please log in to the control panel
-echo
+	message_box "PartCCTV Installation" \
+		"Your PartCCTV instance is running.
+		\n\nPlease log in to the control panel"
+
 # echo You will be alerted that the website has an invalid certificate.
 # echo
