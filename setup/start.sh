@@ -29,10 +29,6 @@ source setup/ffmpeg.sh
 # ...and then have it write the nginx configuration files and start those
 # services.
 
-# Restoring DB
-echo Restoring DB...
-pg_restore -U cctv -d cctv -1 setup/postgre.sql
-
 cwd=$(pwd)
 
 # Nginx conf

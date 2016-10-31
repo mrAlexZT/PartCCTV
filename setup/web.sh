@@ -22,13 +22,23 @@ echo "Installing Nginx (web server) & PHP7.0 (FPM and CLI)..."
 hide_output add-apt-repository -y ppa:nginx/development
 apt_install nginx php7.0-fpm php7.0-cli php7.0-json php7.0-pgsql php7.0-opcache php7.0-dev libzmq-dev pkg-config php-pear
 echo "Installing ZMQ Binding..."
-hide_output printf "\n" | pecl install zmq-beta
-
+echo
+echo "-----------------------------------------------"
+echo
+printf "\n" | pecl install zmq-beta
+echo "extension=zmq.so" >> /etc/php/7.0/mods-available/zmq.ini
+ln -s /etc/php/7.0/mods-available/zmq.ini /etc/php/7.0/fpm/conf.d/20-zmq.ini
+ln -s /etc/php/7.0/mods-available/zmq.ini /etc/php/7.0/cli/conf.d/20-zmq.ini
+echo
+echo "-----------------------------------------------"
+echo
 echo "Installing PostgreSQL..."
 apt_install postgresql
 echo "Creating the 'cctv' DB..."
-echo "CREATE ROLE cctv LOGIN ENCRYPTED PASSWORD 'cctv';" | sudo -u postgres psql
-su postgres -c "createdb cctv --owner cctv"
+sudo -u postgres bash -c "psql -c \"CREATE USER cctv WITH PASSWORD 'cctv';\""
+sudo -u postgres bash -c "psql -c \"createdb cctv --owner cctv;\""
+echo Restoring DB...
+pg_restore -U cctv -d cctv -1 setup/postgre.sql
 
 # Open ports.
 ufw_allow http
