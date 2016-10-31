@@ -33,7 +33,7 @@ cwd=$(pwd)
 
 # Nginx conf
 echo Configuring nginx
-sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/nginx.conf
+sed -i "s#/home/cctv/PartCCTV#$cwd#g" setup/nginx.conf
 rm -f /etc/nginx/conf.d/default.conf
 cp setup/nginx.conf /etc/nginx/conf.d/default.conf
 
