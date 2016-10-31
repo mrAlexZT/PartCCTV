@@ -26,6 +26,7 @@ echo
 echo "-----------------------------------------------"
 echo
 printf "\n" | pecl install zmq-beta
+rm -f /etc/php/7.0/mods-available/zmq.ini
 echo "extension=zmq.so" >> /etc/php/7.0/mods-available/zmq.ini
 ln -s /etc/php/7.0/mods-available/zmq.ini /etc/php/7.0/fpm/conf.d/20-zmq.ini
 ln -s /etc/php/7.0/mods-available/zmq.ini /etc/php/7.0/cli/conf.d/20-zmq.ini
