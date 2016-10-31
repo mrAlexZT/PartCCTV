@@ -21,7 +21,8 @@ Clone the repo:
 
 Begin the installation.
 
-	$ sudo setup/start.sh
+	$ sudo su
+	$ source setup/start.sh	
 
 ## About
 
