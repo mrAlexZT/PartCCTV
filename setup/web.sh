@@ -21,8 +21,8 @@ fi
 echo "Installing Nginx (web server) & PHP7.0 (FPM and CLI)..."
 hide_output add-apt-repository -y ppa:nginx/development
 apt_install nginx php7.0-fpm php7.0-cli php7.0-json php7.0-pgsql php7.0-opcache php7.0-dev php7.0-zip libzmq-dev pkg-config php-pear
-echo "Configuring PHP"
-sed -i "s#www-data#nginx#g" /etc/php/7.0/fpm/pool.d/www.conf
+# echo "Configuring PHP"
+# sed -i "s#www-data#nginx#g" /etc/php/7.0/fpm/pool.d/www.conf
 echo "Installing ZMQ Binding..."
 echo
 echo "-----------------------------------------------"
