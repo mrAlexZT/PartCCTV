@@ -37,6 +37,17 @@ sed -i "s#/home/cctv/PartCCTV#$cwd#g" setup/nginx.conf
 rm -f /etc/nginx/conf.d/default.conf
 cp setup/nginx.conf /etc/nginx/conf.d/default.conf
 
+# Composer
+echo Installing Composer dependencies...
+hide_output php composer.phar install
+
+# PartCCTV.ini
+echo Creating PartCCTV.ini file...
+cp PartCCTV.ini.example PartCCTV.ini
+sed -i "s#root#cctv#g" PartCCTV.ini
+sed -i "s#mysql#pgsql#g" PartCCTV.ini
+sed -i "s#run_as_systemd_service = false#run_as_systemd_service = true#g" PartCCTV.ini
+
 # Start services.
 echo Restarting services...
 restart_service nginx
@@ -56,9 +67,7 @@ echo "-----------------------------------------------"
 echo
 echo Your PartCCTV instance is running.
 echo
-echo Please log in to the control panel at:
-echo
-echo http://$PRIVATE_IP/
+echo Please log in to the control panel
 echo
 # echo You will be alerted that the website has an invalid certificate.
 # echo
