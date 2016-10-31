@@ -35,10 +35,17 @@ echo
 echo "Installing PostgreSQL..."
 apt_install postgresql
 echo "Creating the 'cctv' DB..."
+echo
+echo "-----------------------------------------------"
+echo
 sudo -u postgres bash -c "psql -c \"CREATE USER cctv WITH PASSWORD 'cctv';\""
 sudo -u postgres bash -c "psql -c \"CREATE DATABASE cctv --owner cctv;\""
 echo Restoring DB...
+export PGPASSWORD=cctv
 psql -U cctv cctv -h localhost < setup/postgre.sql
+echo
+echo "-----------------------------------------------"
+echo
 
 # Open ports.
 ufw_allow http

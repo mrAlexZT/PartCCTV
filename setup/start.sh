@@ -45,7 +45,7 @@ restart_service postgresql
 
 # PartCCTV Service
 echo Setting-up PartCCTV service
-sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/partcctv.service
+sed -i "s#/home/cctv/PartCCTV#$cwd#g" setup/partcctv.service
 cp setup/partcctv.service /etc/systemd/system/partcctv.service
 systemctl enable partcctv
 systemctl start partcctv
