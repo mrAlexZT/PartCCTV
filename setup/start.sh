@@ -29,21 +29,30 @@ source setup/ffmpeg.sh
 # ...and then have it write the nginx configuration files and start those
 # services.
 
+# Restoring DB
+echo Restoring DB...
+pg_restore -U cctv -d cctv -1 setup/postgre.sql
+
 cwd=$(pwd)
-# PartCCTV Service
-sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/partcctv.service
-cp setup/partcctv.service /etc/systemd/system/partcctv.service
-systemctl enable partcctv
-systemctl start partcctv
 
 # Nginx conf
+echo Configuring nginx
 sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/nginx.conf
 rm -f /etc/nginx/conf.d/default.conf
 cp setup/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Start services.
+echo Restarting services...
 restart_service nginx
 restart_service php7.0-fpm
+restart_service postgresql
+
+# PartCCTV Service
+echo Setting-up PartCCTV service
+sed -i 's#/home/cctv/PartCCTV#$cwd#g' setup/partcctv.service
+cp setup/partcctv.service /etc/systemd/system/partcctv.service
+systemctl enable partcctv
+systemctl start partcctv
 
 # Done.
 echo
@@ -53,7 +62,7 @@ echo Your PartCCTV instance is running.
 echo
 echo Please log in to the control panel at:
 echo
-echo https://$PRIVATE_IP/
+echo http://$PRIVATE_IP/
 echo
-echo You will be alerted that the website has an invalid certificate.
-echo
+# echo You will be alerted that the website has an invalid certificate.
+# echo

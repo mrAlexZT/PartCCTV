@@ -26,6 +26,9 @@ hide_output printf "\n" | pecl install zmq-beta
 
 echo "Installing PostgreSQL..."
 apt_install postgresql
+echo "Creating the 'cctv' DB..."
+echo "CREATE ROLE cctv LOGIN ENCRYPTED PASSWORD 'cctv';" | sudo -u postgres psql
+su postgres -c "createdb cctv --owner cctv"
 
 # Open ports.
 ufw_allow http

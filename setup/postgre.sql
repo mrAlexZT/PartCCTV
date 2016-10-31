@@ -25,6 +25,6 @@ INSERT INTO core_settings VALUES
 ('path', '/media/cctv'),
 ('segment_time_min', '60'),
 ('ffmpeg_bin', 'ffmpeg -hide_banner -loglevel error -i "%SOURCE%" -c copy -map 0 -f segment -segment_time %SEGTIME_SEC% -segment_atclocktime 1 -segment_format mp4 -reset_timestamps 1 -strftime 1 "%REC_PATH%/id%CAM_ID%/%Y-%m-%d_%H-%M-%S.mkv"'),
-('motion_bin', ''),
-('custom_bin', ''),
+('motion_bin', '-'),
+('custom_bin', '-'),
 ('default_handler', 'ffmpeg');
