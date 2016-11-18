@@ -22,6 +22,7 @@ $app['db'] = $PartCCTV_ini['db'];
 $app['dbh'] = function () use ($app) {
     return new PDO($app['db']['dsn'], $app['db']['user'], $app['db']['password']);
 };
+$app['dbh']->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 
 // Declare a ZMQ service.
 $app['zmq'] = function () {

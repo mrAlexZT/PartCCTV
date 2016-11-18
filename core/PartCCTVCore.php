@@ -7,37 +7,41 @@
 
 class PartCCTVCore
 {
-    protected $IF_Shutdown = 0;
+    protected $PIDLock;	
+/*     protected $IF_Shutdown = 0; */
     protected $IF_Restart_Required = 0;
-    protected $CorePID;
-    protected $WorkerPIDs = array();
-    protected $CoreSettings = array();
-    protected $Logger;
-    protected $CamLogger;
     protected $PartCCTV_ini = array();
-    protected $PIDLock_file;
+    protected $Logger;
+    protected $CamLogger;	
+	protected $DBH;
+    protected $CoreSettings = array();
+	protected $Workers = array();
+    protected $WorkerPIDs = array();	
 
     public function __construct()
     {
         pcntl_signal(SIGTERM, array($this, "signalHandler"));
-        pcntl_signal(SIGCHLD, array($this, "signalHandler"));
+/*         pcntl_signal(SIGCHLD, array($this, "signalHandler")); */
 
-        $this->CorePID = getmypid();
-
+		exec('killall ffmpeg');
+		
+		if (!file_exists(__DIR__ . '/../PartCCTV.ini')) {
+			throw new PartCCTVException("PartCCTV.ini was not found");
+		}
         $this->PartCCTV_ini = parse_ini_file(__DIR__ . '/../PartCCTV.ini', true);
 
+		if($this->PartCCTV_ini['monolog_stream']['enabled'] || $this->PartCCTV_ini['monolog_telegram']['enabled']){
+			// Main Log
+			$this->Logger = new Monolog\Logger('PartCCTV');
 
-        // Main Log
-        $this->Logger = new Monolog\Logger('PartCCTV');
+			// Cams Log
+			$this->CamLogger = new Monolog\Logger('PartCCTV_CAM');
+			
+			// Register the logger to handle PHP errors and exceptions
+			Monolog\ErrorHandler::register($this->Logger);
 
-        // Cams Log
-        $this->CamLogger = new Monolog\Logger('PartCCTV_CAM');
-
-        // Register the logger to handle PHP errors and exceptions
-        Monolog\ErrorHandler::register($this->Logger);
-
-        $LoggerRef = new \ReflectionClass('Monolog\Logger');
-
+			$LoggerRef = new \ReflectionClass('Monolog\Logger');
+		}
 
         //StreamHandler
         if ($this->PartCCTV_ini['monolog_stream']['enabled']) {
@@ -55,10 +59,10 @@ class PartCCTVCore
 
         // PID Lock
         if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
-            $this->PIDLock_file = fopen($this->PartCCTV_ini['core']['PIDLock_file'], "w+");
-            if (flock($this->PIDLock_file, LOCK_EX)) { // выполняем эксклюзивную блокировку
-                ftruncate($this->PIDLock_file, 0); // очищаем файл
-                fwrite($this->PIDLock_file, $this->CorePID);
+            $this->PIDLock = fopen($this->PartCCTV_ini['core']['PIDLock'], "w+");
+            if (flock($this->PIDLock, LOCK_EX)) { // выполняем эксклюзивную блокировку
+                ftruncate($this->PIDLock, 0); // очищаем файл
+                fwrite($this->PIDLock, getmypid());
             } else {
                 throw new PartCCTVException('Не удалось получить блокировку!');
             }
@@ -69,11 +73,94 @@ class PartCCTVCore
     {
         if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
             // PID Lock
-            fflush($this->PIDLock_file);        // очищаем вывод перед отменой блокировки
-            flock($this->PIDLock_file, LOCK_UN); // отпираем файл
+            fflush($this->PIDLock);        // очищаем вывод перед отменой блокировки
+            flock($this->PIDLock, LOCK_UN); // отпираем файл
         }
     }
 
+	private function DBH_initialize()
+	{
+		//PDO
+		$this->Logger->debug('Инициализация БД');
+        $this->DBH = new PDO($this->PartCCTV_ini['db']['dsn'], $this->PartCCTV_ini['db']['user'], $this->PartCCTV_ini['db']['password']);
+		$this->DBH->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+	}
+	
+	private function CoreSettings_Fetch()
+	{
+		$this->Logger->debug('Чтение CoreSettings');
+        $CoreSettings_raw = $this->DBH->query('SELECT * FROM core_settings');
+        $CoreSettings_raw->setFetchMode(PDO::FETCH_ASSOC);
+        while ($row = $CoreSettings_raw->fetch()) {
+            $this->CoreSettings[$row['param']] = $row['value'];
+        }
+
+        if (empty($this->CoreSettings)) {
+            throw new PartCCTVException('CoreSettings не может быть пуст!');
+        }
+	}
+	
+	private function Tasks_Fetch()
+	{	
+		$this->Logger->debug('Обновление списка задач для записи');
+		$CamSettings_raw = $this->DBH->query('SELECT id FROM cam_list WHERE enabled = 1');
+        $CamSettings_raw->setFetchMode(PDO::FETCH_ASSOC);
+        while ($row = $CamSettings_raw->fetch()) {
+            $this->WorkerPIDs[$row['id']] = null;
+        }
+	}
+	
+	private function WorkerPIDs_Starter()
+	{
+        foreach($this->WorkerPIDs as $id=>$pid) {
+			if($pid === null || !posix_getpgid($pid)) {
+				//Last Line of cam log to CamLogger, rm log...
+				
+				$RawCamInfo = $this->DBH->prepare('SELECT source FROM cam_list WHERE enabled = 1 AND id = :id');
+				$RawCamInfo->bindParam(':id', $id);
+				$RawCamInfo->execute();
+				$CamInfo = $RawCamInfo->fetchColumn();
+				// $Source, $Handler, $CustomHadnler?
+				
+				$Arr1 = array('%SOURCE%', '%SEGTIME_MIN%', '%SEGTIME_SEC%', '%REC_PATH%', '%CAM_ID%');
+				$Arr2 = array($Source, $this->CoreSettings['segment_time_min'], $this->CoreSettings['segment_time_min'] * 60, $this->CoreSettings['path'], $id);
+				switch ($Handler) {
+
+					case 'ffmpeg':
+						$Bin_Path = str_replace($Arr1, $Arr2, $this->CoreSettings['ffmpeg_bin']);
+						break;
+
+					case 'motion':
+						$Bin_Path = str_replace($Arr1, $Arr2, $this->CoreSettings['motion_bin']);
+						break;
+
+					case 'custom':
+						$Bin_Path = str_replace($Arr1, $Arr2, $CustomHadnler);
+						break;
+					
+				}
+			}
+			if($pid === null) {
+				//Для каждой камеры запускаем ffmpeg 
+				$this->CamLogger->debug('Первичный запуск записи id'.$id);
+				//Run BinPath..., STDOUT To log
+			}
+			if(!posix_getpgid($pid)) {
+				//Задержка?!?
+				
+				//Для каждой камеры запускаем ffmpeg 
+				$this->CamLogger->debug('Первичный запуск записи id'.$id);
+				//Run BinPath...
+			}
+			//Update $this->WorkerPIDs PID... STDOUT To log
+        }	
+	}
+	
+	private function Updater()
+	{
+		//ТУТ ПЕРЕЗАГРУЗКА КОНФИГА
+	}
+	
     /**
      * @throws PartCCTVException
      */
@@ -81,34 +168,14 @@ class PartCCTVCore
     {
 
         $this->Logger->info('Запуск ядра платформы PartCCTV ' . PartCCTV_Version);
-        $this->Logger->info('PID ядра: ' . $this->CorePID);
+        $this->Logger->info('PID ядра: ' . getmypid());
 
-        //PDO
-        $DBH = new PDO($this->PartCCTV_ini['db']['dsn'], $this->PartCCTV_ini['db']['user'], $this->PartCCTV_ini['db']['password']);
-
-        $CoreSettings_raw = $DBH->query('SELECT * FROM core_settings');
-        $CoreSettings_raw->setFetchMode(PDO::FETCH_ASSOC);
-        while ($row = $CoreSettings_raw->fetch()) {
-            $this->CoreSettings[$row['param']] = $row['value'];
-        }
-        unset($CoreSettings_raw);
-        unset($row);
-
-        if (empty($this->CoreSettings['segment_time_min'])) {
-            throw new PartCCTVException('segment_time_min не может быть равен нулю!!!');
-        }
-
-        $CamSettings_raw = $DBH->query('SELECT id FROM cam_list WHERE enabled = 1');
-        $CamSettings_raw->setFetchMode(PDO::FETCH_ASSOC);
-
-        //Для каждой камеры запускаем свой рабочий процесс
-        while ($row = $CamSettings_raw->fetch()) {
-            $this->camWorker($row['id']);
-        }
-        unset($row);
-        unset($CamSettings_raw);
-
+		DBH_initialize();
+		CoreSettings_Fetch();
+		Tasks_Fetch();
+		
         $ArchiveCollectionTime = 0;
+		$WorkerCheckTime = 0;
 
         $ZMQContext = new ZMQContext();
 
@@ -120,6 +187,11 @@ class PartCCTVCore
 
             pcntl_signal_dispatch();
 
+			//(Пере)запускаем воркеры
+			if((time() - $WorkerCheckTime) >= 10) {
+				WorkerPIDs_Starter();
+			}
+			
             //  Чистим старые записи
             if ((time() - $ArchiveCollectionTime) >= $this->CoreSettings['segment_time_min'] * 60) {
                 $this->Logger->debug('Очистка старых записей');
@@ -162,9 +234,9 @@ class PartCCTVCore
 
                     switch ($Parsed_Request['action']) {
 
-                        case 'worker_info':
+/*                         case 'worker_info':
                             if (isset($Parsed_Request['id'])) {
-                                $CamInfo = $DBH->prepare('SELECT source FROM cam_list WHERE enabled = 1 AND id = :id');
+                                $CamInfo = $this->DBH->prepare('SELECT source FROM cam_list WHERE enabled = 1 AND id = :id');
                                 $CamInfo->bindParam(':id', $Parsed_Request['id']);
                                 $CamInfo->execute();
                                 $Response = $CamInfo->fetchColumn();
@@ -176,12 +248,12 @@ class PartCCTVCore
 
                         case 'worker_if_shutdown':
                             $Response = $this->IF_Shutdown;
-                            break;
+                            break; */
 
                         case 'core_status':
                             $status = array(
                                 'core_version' => PartCCTV_Version,
-                                'core_pid' => $this->CorePID,
+                                'core_pid' => getmypid(),
                                 'restart_required' => $this->IF_Restart_Required,
                                 'path' => $this->CoreSettings['path'],
                                 'total_space' => round(disk_total_space($this->CoreSettings['path']) / 1073741824),
@@ -204,20 +276,20 @@ class PartCCTVCore
                             if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
                                 $Response = 'Action is disabled!';
                             } else {
-                                exec('kill ' . $this->CorePID);
+                                exec('kill ' . getmypid());
                                 $Response = 'OK';
                             }
                             break;
 
-                        case 'core_restart':
+/*                         case 'core_restart':
                             if ($this->PartCCTV_ini['core']['run_as_systemd_service']) {
-                                /* exec('service partcctv restart'); */
-                                /* $Response = 'Restart OK'; */
+                                // exec('service partcctv restart'); 
+                                // $Response = 'Restart OK'; 
 								$Response = 'T.B.D.';
                             } else {
                                 $Response = 'Not a Systemd Service!';
                             }
-                            break;
+                            break; */
 
                         case 'core_log':
                             $Response_Log = file_get_contents(__DIR__ . '/../PartCCTV.log');
@@ -249,7 +321,7 @@ class PartCCTVCore
 
             }
 
-            // Завершаем ядро при необходимости
+/*             // Завершаем ядро при необходимости
             if ($this->IF_Shutdown) {
 
                 // Время начала завершения работы
@@ -268,14 +340,14 @@ class PartCCTVCore
                     exec('killall -s9 php');
                     exit(1);
                 }
-            }
+            } */
 			
 			usleep(100000);
 			
         }
     }
 
-    protected function camWorker($id)
+/*     protected function camWorker($id)
     {
         // Создаем дочерний процесс
         // весь код после pcntl_fork() будет выполняться
@@ -290,14 +362,18 @@ class PartCCTVCore
             $this->WorkerPIDs[$pid] = $id;
         } else {
             // А этот код выполнится дочерним процессом
+			
             //Получаем информацию о камере
             $ZMQContext = new ZMQContext();
             $ZMQRequester = new ZMQSocket($ZMQContext, ZMQ::SOCKET_REQ);
             $ZMQRequester->connect('tcp://localhost:5555');
             $ZMQRequester->send(json_encode(array('action' => 'worker_info', 'id' => $id)));
             $worker_info = $ZMQRequester->recv();
+			
             $this->CamLogger->info('Запущен воркер id' . $id . ' с PID ' . getmypid());
+			
             exec('mkdir ' . $this->CoreSettings['path'] . '/id' . $id);
+			
             $attempts = 0;
             $time_to_sleep = 1;
             $time_of_latest_major_fail = time();
@@ -329,7 +405,7 @@ class PartCCTVCore
 
             WHILE (TRUE) {
 
-                exec($Bin_Path);
+                $Bin_Path_Output = exec($Bin_Path);
 
                 // А может нам пора выключиться?
                 $ZMQRequester->send(json_encode(array('action' => 'worker_if_shutdown')));
@@ -345,7 +421,7 @@ class PartCCTVCore
                     $time_of_latest_major_fail = time();
                     $attempts = 0;
                     $time_to_sleep = 1;
-                    $this->CamLogger->NOTICE('Перезапущена запись с камеры id' . $id);
+                    $this->CamLogger->NOTICE('Перезапущена запись с камеры id' . $id . ', выхлоп:' . $Bin_Path_Output);
                 } else {
                     // Хьюстон, у нас проблема
 
@@ -358,26 +434,27 @@ class PartCCTVCore
 
                     // 3 неудачи
                     if ($attempts >= 3) {
-                        $this->CamLogger->CRITICAL('Не удалось восстановить запись с камеры id' . $id . ' в течение последних 3 попыток!');
+                        $this->CamLogger->CRITICAL('Не удалось восстановить запись с камеры id' . $id . ' в течение последних 3 попыток! Выхлоп: ' . $Bin_Path_Output);
                         $attempts = 0;
                     } else {
                         ++$attempts;
-                        $this->CamLogger->WARNING('Перезапущена запись с камеры id' . $id);
+                        $this->CamLogger->WARNING('Перезапущена запись с камеры id' . $id . ', выхлоп: ' . $Bin_Path_Output);
                     }
                 }
             }
         }
-    }
+    } */
 
     public function signalHandler($signo, $pid = null, $status = null)
     {
         switch ($signo) {
             case SIGTERM:
                 $this->Logger->info('Получен сигнал SIGTERM, начало завершения работы платформы');
-                $this->IF_Shutdown = 1;
+/*                 $this->IF_Shutdown = 1; */
                 exec('killall ffmpeg');
+				exit();
                 break;
-            case SIGCHLD:
+/*             case SIGCHLD:
                 // При получении сигнала от дочернего процесса
                 if (!$pid) {
                     $pid = pcntl_waitpid(-1, $status, WNOHANG);
@@ -395,7 +472,7 @@ class PartCCTVCore
                     }
                     $pid = pcntl_waitpid(-1, $status, WNOHANG);
                 }
-                break;
+                break; */
             default:
                 // все остальные сигналы
                 break;
